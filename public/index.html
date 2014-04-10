@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" ng-app id="ng-app">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Filmjölk</title>
+		<link rel="icon" type="image/png" href="/images/icon.png"/>
+
+		<!-- Scripts -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script> <!-- Angular -->
+		<script src="https://code.jquery.com/jquery.js"></script> <!-- jQuery -->
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> <!-- Bootstrap -->
+		<script type="text/javascript" src="script/main.js"></script>
+		<script type="text/javascript" src="script/lazyYT.min.js"></script> <!-- lazyYT for Youtube videos -->
+
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+		<!-- Stylesheets -->
+		<link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/cosmo/bootstrap.min.css" rel="stylesheet"> <!-- Bootswatch - Cosmo -->
+		<link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"> <!-- FontAwesome -->
+		<link href="style/main.css" rel="stylesheet">
+	</head>
+
+	<body ng-cloak ng-controller="Filmjolk">
+		<!-- Navbar -->
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container">
+
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand pointer" onclick="$('.carousel').carousel(0);">Filmjölk</a>
+				</div>
+
+				<div class="collapse navbar-collapse" id="main-navbar-collapse">
+					<ul class="nav navbar-nav">
+						<p  ng-cloak class="navbar-text">{{movies.length}} filmer på {{channels.length}} kanaler</p>
+						<li ng-class="{active: day == 0}"><a class="pointer" ng-click="setDay(0);">Idag</a></li>
+						<li ng-class="{active: day == 1}"><a class="pointer" ng-click="setDay(1);">Imorgon</a></li>
+						<li ng-class="{active: day == 2}"><a class="pointer" ng-click="setDay(2);">På {{getDayString();}}</a></li>
+					</ul>
+
+					<ul class="nav navbar-nav navbar-right">
+						<button class="btn btn-success navbar-btn" ng-click="nextRec();"><i class="fa fa-magic fa-lg"></i> Välj film åt mig!</button>
+						<button class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#channelModal"><i class="fa fa-plus fa-lg"></i> Välj kanaler</button>
+						<button class="btn btn-warning navbar-btn" data-toggle="modal" data-target="#aboutModal"><i class="fa fa-question-circle fa-lg"></i></button>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<!-- About modal -->
+		<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h2 class="modal-title" id="modalLabel">Om Filmjölk</h2>
+					</div>
+					<div class="modal-body">
+						<p>Massa rolig info! Och roliga länkar!</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-check"></i> OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Channel select modal -->
+		<div class="modal fade" id="channelModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h2 class="modal-title" id="modalLabel">Välj kanaler</h2>
+					</div>
+					<div class="modal-body" id="channel-modal-body">
+						<table id="channelTable" class="table">
+							<tbody>
+								<tr ng-repeat="channel in allChannels" class="pointer" ng-class="{'success': indexOfChannel(channel) != -1}" ng-click="toggleChannel(channel);">
+									<td>{{channel.name}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-reply"></i> Avbryt</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveChannelsToStorage();"><i class="fa fa-check"></i> OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Movie carousel -->
+		<div id="movie-carousel" class="carousel slide" data-interval="false">
+			<!-- Slide indicators -->
+			<ol class="carousel-indicators">
+				<li id="start-indicator" data-target="#movie-carousel" data-slide-to="0" class="active"></li>
+				<li data-target="#movie-carousel" ng-repeat="movie in movies" data-slide-to="{{$index + 1}}"></li>
+			</ol>
+
+			<!-- Slides -->
+			<div class="carousel-inner">
+
+				<!-- Start slide -->
+				<div id="start-slide" class="item active">
+					<img class="img-responsive" id="backgroundImage" src="http://lorempixel.com/1920/1080/cats/">
+					<div ng-if="channels.length != 0" id="loadProgress" class="carousel-caption">
+						<h2>Laddar filmer...</h2>
+						<div class="progress progress-striped active">
+							<div id="loading-bar" class="progress-bar"  role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+						</div>
+					</div>
+
+					<div ng-if="movies.length > 0" class="carousel-caption well">
+						<h3>Fattar du inte hur du skall göra?</h3>
+						<p>Klicka på pilen till höger eller den gröna knappen i toppmenyn, din dumma jävel.</p>
+					</div>
+
+					<div ng-if="channels.length == 0" class="carousel-caption well">
+						<h3>Fattar du inte hur du skall göra?</h3>
+						<p>Välj kanaler genom att klicka på den blå knappen i menyn, din dumma jävel.</p>
+					</div>
+				</div>
+
+				<!-- Movie slides -->
+				<div class="item" ng-repeat="movie in movies">
+					<img ng-if="movie.tmdb.backdrop_path"  class="img-responsive" id="backgroundImage" ng-src="http://image.tmdb.org/t/p/original{{movie.tmdb.backdrop_path}}">
+					<img ng-if="!movie.tmdb.backdrop_path" class="img-responsive" id="backgroundImage" ng-src="http://lorempixel.com/1920/1080/cats/">
+
+					<div class="panel panel-default info">
+						<!-- Movie progress -->
+						<div class="panel-header movie-progress">
+							<div class="progress active">
+								<div class="progress-bar" role="progressbar" aria-valuenow="{{getMovieProgress(movie)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{getMovieProgress(movie)}}%;"></div>
+							</div>
+						</div>
+
+						<!-- Movie info -->
+						<div class="panel-body">
+							<div class="info-inner" class="col-sm-12 col-md-4">
+								<div class="poster" class="pull-right">
+									<img ng-if="movie.fanart.moviedisc" class="disc-image spin" ng-src="{{movie.fanart.moviedisc[0].url}}/preview">
+									<img ng-if="movie.tmdb.poster_path" class="cover-image" ng-src="http://image.tmdb.org/t/p/original{{movie.tmdb.poster_path}}">
+								</div>
+
+								<div class="movie-info pull-right">
+									<div class="pull-right text-right">
+										<h2 ng-if="movie.imdb.rating">{{movie.imdb.rating}}/10</h2>
+										<h4>{{getTimeString(movie.programme.start);}} - {{getTimeString(movie.programme.stop);}} på {{movie.channel.name}}</h4>
+									</div>
+									<h2>{{movie.series.name}}</h2>
+									<p>{{movie.programme.description}}</p>
+									<p>
+										<button ng-if="movie.trailer.youtube" class="btn btn-xs btn-default" data-toggle="modal" ng-click="loadTrailer($index);" data-target="#{{$index}}-trailer-modal"><i class="fa fa-youtube-play"></i> Trailer</button>
+										<a ng-if="movie.fanart.imdb_id" class="btn btn-xs btn-default" target="_blank" href="http://www.imdb.com/title/{{movie.fanart.imdb_id}}"><i class="fa fa-film"></i> IMDb</a>
+										<a ng-if="movie.tmdb" class="btn btn-xs btn-default" target="_blank" href="http://www.themoviedb.org/movie/{{movie.tmdb.id}}">tMDB</a>
+										<a ng-if="movie.channel.id == 251 || movie.channel == 253" class="btn btn-xs btn-default" target="_blank" href="http://www.svtplay.se/kanaler/{{getChannelName(movie.channel.id)}}"><i class="fa fa-play-circle"></i> Se live</a>
+									</p>
+									<p class="pull-left">
+										<button class="btn btn-sm btn-success" data-toggle="modal" data-target="#{{$index}}-modal"><i class="fa fa-thumbs-up"></i> Aa fan!</button>
+										<button class="btn btn-sm btn-danger" ng-click="nextRec();"><i class="fa fa-thumbs-down"></i> Nä fy!</button
+									</p>
+									<div class="pull-right">
+										<img ng-if="movie.fanart.movielogo[0].url" ng-src="{{movie.fanart.movielogo[0].url}}/preview">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Movie trailer modal -->
+					<div ng-if="movie.trailer.youtube" class="modal fade trailer-modal" id="{{$index}}-trailer-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+						<div class="modal-dialog" style="width:1280px;margin-top:100px">
+							<div class="modal-content" >
+								<div class="modal-body" style="margin:0px;padding:0px;">
+									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-width="1280" data-height="720" data-parameters="rel=0&enablejsapi=1"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Movie reminder modal -->
+					<div class="modal fade" id="{{$index}}-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h1 class="modal-title" id="modalLabel">{{movie.series.name}}</h1>
+								</div>
+								<div class="modal-body">
+									<p>Börjar snart, yo!<small></small></p>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-reply"></i> Avbryt</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Slide controls -->
+			<a id="leftControl" style="display:none;" class="left carousel-control pointer" onclick="$('.carousel').carousel('prev');" data-slide="prev">
+				<i class="fa fa-angle-double-left fa-3x slide-control"></i>
+			</a>
+			<a id="rightControl" style="display:none;" class="right carousel-control pointer" onclick="$('.carousel').carousel('next');" data-slide="next">
+				<i class="fa fa-angle-double-right fa-3x slide-control"></i>
+			</a>
+		</div>
+	</body>
+</html>

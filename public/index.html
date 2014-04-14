@@ -50,8 +50,8 @@
 					</ul>
 
 					<ul class="nav navbar-nav navbar-right">
-						<button class="btn btn-success navbar-btn" ng-click="nextRec();"><i class="fa fa-magic fa-lg"></i> Välj film åt mig!</button>
-						<button class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#channelModal"><i class="fa fa-plus fa-lg"></i> Välj kanaler</button>
+						<button class="btn btn-success navbar-btn" ng-click="nextRec();"><i class="fa fa-magic fa-lg"></i><span class="menu-button-label"> Välj film åt mig!</span></button>
+						<button class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#channelModal"><i class="fa fa-plus fa-lg"></i><span class="menu-button-label"> Välj kanaler</span></button>
 						<button class="btn btn-warning navbar-btn" data-toggle="modal" data-target="#aboutModal"><i class="fa fa-question-circle fa-lg"></i></button>
 					</ul>
 				</div>
@@ -104,7 +104,7 @@
 		<!-- Movie carousel -->
 		<div id="movie-carousel" class="carousel slide" data-interval="false">
 			<!-- Slide indicators -->
-			<ol class="carousel-indicators">
+			<ol class="carousel-indicators center-block">
 				<li id="start-indicator" data-target="#movie-carousel" data-slide-to="0" class="active"></li>
 				<li data-target="#movie-carousel" ng-repeat="movie in movies" data-slide-to="{{$index + 1}}"></li>
 			</ol>
@@ -114,7 +114,8 @@
 
 				<!-- Start slide -->
 				<div id="start-slide" class="item active">
-					<img class="img-responsive" id="backgroundImage" src="http://lorempixel.com/1920/1080/cats/">
+					<div id="backgroundImage" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
+
 					<div ng-if="channels.length != 0" id="loadProgress" class="carousel-caption">
 						<h2>Laddar filmer...</h2>
 						<div class="progress progress-striped active">
@@ -135,9 +136,10 @@
 
 				<!-- Movie slides -->
 				<div class="item" ng-repeat="movie in movies">
-					<img ng-if="movie.tmdb.backdrop_path"  class="img-responsive" id="backgroundImage" ng-src="http://image.tmdb.org/t/p/original{{movie.tmdb.backdrop_path}}">
-					<img ng-if="!movie.tmdb.backdrop_path" class="img-responsive" id="backgroundImage" ng-src="http://lorempixel.com/1920/1080/cats/">
+					<div id="backgroundImage" ng-if="!movie.tmdb.backdrop_path" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
+					<div id="backgroundImage" ng-if="movie.tmdb.backdrop_path"style="background: url(http://image.tmdb.org/t/p/original{{movie.tmdb.backdrop_path}}) no-repeat center center fixed;"></div>
 
+					<!-- Desktop info panel -->
 					<div class="panel panel-default info">
 						<!-- Movie progress -->
 						<div class="panel-header movie-progress">
@@ -181,10 +183,10 @@
 
 					<!-- Movie trailer modal -->
 					<div ng-if="movie.trailer.youtube" class="modal fade trailer-modal" id="{{$index}}-trailer-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-						<div class="modal-dialog" style="width:1280px;margin-top:100px">
+						<div class="modal-dialog center-block" style="width:{{getTrailerSize().width}}px;margin-top:100px">
 							<div class="modal-content" >
 								<div class="modal-body" style="margin:0px;padding:0px;">
-									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-width="1280" data-height="720" data-parameters="rel=0&enablejsapi=1"></div>
+									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-width="{{getTrailerSize().width}}" data-height="{{getTrailerSize().height}}" data-parameters="rel=0&enablejsapi=1"></div>
 								</div>
 							</div>
 						</div>
@@ -199,7 +201,7 @@
 									<h1 class="modal-title" id="modalLabel">{{movie.series.name}}</h1>
 								</div>
 								<div class="modal-body">
-									<p>Börjar snart, yo!<small></small></p>
+									<p>Börjar snart, yo!</p>
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-reply"></i> Avbryt</button>
@@ -212,10 +214,10 @@
 
 			<!-- Slide controls -->
 			<a id="leftControl" style="display:none;" class="left carousel-control pointer" onclick="$('.carousel').carousel('prev');" data-slide="prev">
-				<i class="fa fa-angle-double-left fa-3x slide-control"></i>
+				<i class="fa fa-angle-double-left fa-3x fa-lg fa-fw slide-control"></i>
 			</a>
 			<a id="rightControl" style="display:none;" class="right carousel-control pointer" onclick="$('.carousel').carousel('next');" data-slide="next">
-				<i class="fa fa-angle-double-right fa-3x slide-control"></i>
+				<i class="fa fa-angle-double-right fa-3x fa-lg fa-fw slide-control"></i>
 			</a>
 		</div>
 	</body>

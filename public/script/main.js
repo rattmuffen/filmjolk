@@ -247,4 +247,14 @@ function Filmjolk($scope, $http) {
 
 		return y + '-' + m + '-' + day;
 	}
+
+	$scope.getTrailerSize = function() {
+		var viewportWidth = $(window).width();
+
+		var trailerWidth = viewportWidth * 0.7;
+		var trailerHeight = trailerWidth * (9/16);
+		console.log(trailerWidth + " x " + trailerHeight);
+
+		return {'width':trailerWidth,'height':trailerHeight};
+	}
 }

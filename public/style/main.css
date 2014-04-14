@@ -1,5 +1,5 @@
-/* Navvar */
-body { 
+/* Navbar */
+body {
 	padding-top: 50px;
 }
 
@@ -11,7 +11,6 @@ body {
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default .navbar-nav>.active>a:focus {
 	background-color: #9954bb;
 }
-
 
 /* Modals */
 .modal {
@@ -32,6 +31,14 @@ body {
 
 
 /* Carousel */
+.carousel-indicators {
+	background-color: rgba(30, 30, 30, 0.6);
+	border-radius: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: inherit;
+}
+
 .well {
 	margin-bottom: 20vh;
 	border: none;
@@ -78,7 +85,6 @@ body {
 	filter: alpha(opacity=90); /* msie */
 }
 
-
 /* Fanart */
 .poster {
 	height: 100%;
@@ -113,9 +119,21 @@ body {
 
 
 #backgroundImage {
-	width: 100vw;
+	width:100vw;
+	height:100vh;
+	-webkit-background-size: cover !important;
+	-moz-background-size: cover !important;
+	-o-background-size: cover !important;
+	background-size: cover !important;
 	opacity: 0.7;
 	filter: alpha(opacity=70); /* msie */
+}
+
+
+@media screen and (max-width: 992px) {
+	.menu-button-label {
+		display: none;
+	}
 }
 
 

@@ -9,6 +9,7 @@ try {
 	var fanart_api_key = fs.readFileSync('keys/fanarttv', 'utf8');
 	var tmdb_api_key = fs.readFileSync('keys/tmdb', 'utf8');
 	var	epgio_api_key = fs.readFileSync('keys/epgio', 'utf8');
+	var rottentomatoes_api_key = fs.readFileSync('keys/rottentomatoes', 'utf8');
 } catch (err) {
 	console.log('Please place files containing valid API keys for fanart.tv, tmdb and epg.io under /keys/');
 	process.exit(1);
@@ -16,6 +17,7 @@ try {
 	console.log('API keys read successfully.');
 	var imdb = require('imdb-api');
 	var tmdb = require('moviedb')(tmdb_api_key);
+	var tomatoes = require('tomatoes')(rottentomatoes_api_key);
 }
 
 app.configure(function () {
@@ -75,6 +77,12 @@ app.get('/movies/:channel/date/:date', function(req, res) {
 		// Get IMDB data for each of the movies
 		function(movies, callback){
 			async.map(movies, getIMDB, function (err, results) {
+				callback(null, results);
+			});
+		},
+		// Get RT data for each of the movies
+		function(movies, callback){
+			async.map(movies, getRT, function (err, results) {
 				callback(null, results);
 			});
 		}
@@ -185,6 +193,17 @@ function getFanart(item, callback) {
 		});
 	});
 	request.end();
+}
+
+function getRT(item, callback) {
+	tomatoes.search(item.series.name, function (err, result){
+		if (result.length > 0)
+			item.rt = result[0];
+		else
+			item.rt = '';
+
+		callback(null, item);
+	});
 }
 
 // Removes the top JSON-object and shift children to top.

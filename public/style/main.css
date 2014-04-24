@@ -29,6 +29,15 @@ body {
 	padding: 0px !important;
 }
 
+.trailer-modal-body {
+	margin:0px;
+	padding:0px;
+}
+
+.trailer-dialog {
+	margin-top: 100px;
+}
+
 
 /* Carousel */
 .carousel-indicators {

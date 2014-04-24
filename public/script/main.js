@@ -1,6 +1,17 @@
 $(document).ready(function() {
 	// Prevent double-click to select.
 	$(document).mousedown(function(){ event.preventDefault(); });
+
+	$(window).resize(function() {
+		console.log('resize!');
+
+		var viewportWidth = $(window).width();
+		var trailerWidth = viewportWidth * 0.7;
+		var trailerHeight = trailerWidth * (9/16);
+
+		$(".js-lazyYT").attr({"data-width": trailerWidth, "data-height":trailerHeight });
+		$(".trailer-dialog").css({"width":trailerWidth})
+	}).resize();
 });
 
 
@@ -198,6 +209,9 @@ function Filmjolk($scope, $http) {
 	$scope.loadTrailer = function (index) {
 		// If trailer hasn't been loaded before...
 		if ($('#'+index+'-trailer').attr('class').indexOf('lazyYT-video-loaded') == -1) {
+			// Trailer window sizes.
+			$(window).trigger('resize');
+
 			// Load youtube video.
 			$('#'+index+'-trailer').lazyYT();
 
@@ -246,15 +260,5 @@ function Filmjolk($scope, $http) {
 		if (day < 10) {day = '0' + day; }
 
 		return y + '-' + m + '-' + day;
-	}
-
-	$scope.getTrailerSize = function() {
-		var viewportWidth = $(window).width();
-
-		var trailerWidth = viewportWidth * 0.7;
-		var trailerHeight = trailerWidth * (9/16);
-		console.log(trailerWidth + " x " + trailerHeight);
-
-		return {'width':trailerWidth,'height':trailerHeight};
 	}
 }

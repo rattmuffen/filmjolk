@@ -167,6 +167,11 @@
 										<button ng-if="movie.trailer.youtube" class="btn btn-xs btn-default" data-toggle="modal" ng-click="loadTrailer($index);" data-target="#{{$index}}-trailer-modal"><i class="fa fa-youtube-play"></i> Trailer</button>
 										<a ng-if="movie.fanart.imdb_id" class="btn btn-xs btn-default" target="_blank" href="http://www.imdb.com/title/{{movie.fanart.imdb_id}}"><i class="fa fa-film"></i> IMDb</a>
 										<a ng-if="movie.tmdb" class="btn btn-xs btn-default" target="_blank" href="http://www.themoviedb.org/movie/{{movie.tmdb.id}}">tMDB</a>
+										<a ng-if="movie.rt" class="btn btn-xs btn-default" target="_blank" href="{{movie.rt.links.alternate}}" title="Betyg på RottenTomatoes: {{movie.rt.ratings.critics_rating}}">
+											<i ng-if="movie.rt.ratings.critics_rating == 'Certified Fresh'"class="fa fa-star-o"></i>
+											<i ng-if="movie.rt.ratings.critics_rating == 'Rotten'"class="fa fa-thumbs-o-down"></i>
+											Rotten Tomatoes
+										</a>
 										<a ng-if="movie.channel.id == 251 || movie.channel == 253" class="btn btn-xs btn-default" target="_blank" href="http://www.svtplay.se/kanaler/{{getChannelName(movie.channel.id)}}"><i class="fa fa-play-circle"></i> Se live</a>
 									</p>
 									<p class="pull-left">
@@ -183,10 +188,10 @@
 
 					<!-- Movie trailer modal -->
 					<div ng-if="movie.trailer.youtube" class="modal fade trailer-modal" id="{{$index}}-trailer-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-						<div class="modal-dialog center-block" style="width:{{getTrailerSize().width}}px;margin-top:100px">
+						<div class="modal-dialog center-block trailer-dialog">
 							<div class="modal-content" >
-								<div class="modal-body" style="margin:0px;padding:0px;">
-									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-width="{{getTrailerSize().width}}" data-height="{{getTrailerSize().height}}" data-parameters="rel=0&enablejsapi=1"></div>
+								<div class="modal-body trailer-modal-body">
+									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-parameters="rel=0&enablejsapi=1"></div>
 								</div>
 							</div>
 						</div>

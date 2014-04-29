@@ -127,24 +127,23 @@ body {
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 
-#backgroundImage {
-	width:100vw;
+.bg-image {
+	background:transparent url(../images/blank.png) no-repeat center center;
+	-webkit-background-size:cover;
+	-moz-background-size:cover;
+	background-size:cover;
 	height:100vh;
-	-webkit-background-size: cover !important;
-	-moz-background-size: cover !important;
-	-o-background-size: cover !important;
-	background-size: cover !important;
-	opacity: 0.7;
-	filter: alpha(opacity=70); /* msie */
+	width: 100vw;
+	position:absolute;
+	top:0px;
+	left:0px;
 }
-
 
 @media screen and (max-width: 992px) {
 	.menu-button-label {
 		display: none;
 	}
 }
-
 
 /* Help classes */
 .pointer {

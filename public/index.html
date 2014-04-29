@@ -114,7 +114,7 @@
 
 				<!-- Start slide -->
 				<div id="start-slide" class="item active">
-					<div id="backgroundImage" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
+					<div class="bg-image" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
 
 					<div ng-if="channels.length != 0" id="loadProgress" class="carousel-caption">
 						<h2>Laddar filmer...</h2>
@@ -136,8 +136,10 @@
 
 				<!-- Movie slides -->
 				<div class="item" ng-repeat="movie in movies">
-					<div id="backgroundImage" ng-if="!movie.tmdb.backdrop_path" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
-					<div id="backgroundImage" ng-if="movie.tmdb.backdrop_path"style="background: url(http://image.tmdb.org/t/p/original{{movie.tmdb.backdrop_path}}) no-repeat center center fixed;"></div>
+					<div id="{{$index}}-bg" class="bg-image" ng-if="movie.backgrounds.length == 0" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
+					<div id="{{$index}}-bgContainer" ng-if="movie.backgrounds.length > 0">
+						<div ng-repeat="bg in movie.backgrounds" class="{{$parent.$index}}-bg-image bg-image" style="background-image:url({{bg.url}})"></div>
+					</div>
 
 					<!-- Desktop info panel -->
 					<div class="panel panel-default info">

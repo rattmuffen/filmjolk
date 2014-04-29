@@ -85,8 +85,14 @@ app.get('/movies/:channel/date/:date', function(req, res) {
 			async.map(movies, getRT, function (err, results) {
 				callback(null, results);
 			});
+		},
+		function(movies, callback){
+			async.map(movies,processMovie, function (err, results) {
+				callback(null, results);
+			});
 		}
 	], function (err, result) {
+
 		var data = {movies: result, channel: req.params.channel};
 		res.send(data);
 	});
@@ -212,4 +218,21 @@ function parseFanartResult(data) {
 
 	if (data == '') {return data; }
 	return JSON.parse('{' + data);
+}
+
+function processMovie(item, callback) {
+	/* Collect all backgrounds in one array */
+	var backgrounds = [];
+
+	if (item.tmdb && item.tmdb.backdrop_path) {
+		backgrounds.push({'url':'http://image.tmdb.org/t/p/original' + item.tmdb.backdrop_path})
+	}
+
+	if (item.fanart.moviebackground) {
+		backgrounds = backgrounds.concat(item.fanart.moviebackground);
+	}
+
+	item.backgrounds = backgrounds;
+
+	callback(null, item)
 }

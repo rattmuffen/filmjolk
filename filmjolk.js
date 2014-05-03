@@ -232,7 +232,48 @@ function processMovie(item, callback) {
 		backgrounds = backgrounds.concat(item.fanart.moviebackground);
 	}
 
+
+	/* Calculate average score */
+	var sources = 0;
+	var score = 0;
+
+	if (item.imdb && item.imdb.rating) {
+		sources++;
+		score += parseFloat(item.imdb.rating) * 10;
+	}
+
+	if (item.tmdb && item.tmdb.vote_average) {
+		sources++;
+		score += item.tmdb.vote_average * 10
+	}
+
+	if (item.rt && item.rt.ratings.audience_score && item.rt.ratings.audience_score != -1) {
+		sources++;
+		score += item.rt.ratings.audience_score;
+	}
+
+	if (item.rt && item.rt.ratings.critics_score && item.rt.ratings.critics_score != -1) {
+		sources++;
+		score += item.rt.ratings.critics_score;
+	}
+
+	/* Get trailer with best quality */
+	if (item.trailer && item.trailer.youtube && item.trailer.youtube.length > 0) {
+		var best = item.trailer.youtube[0];
+
+		for (var i = 0; i < item.trailer.youtube.length; i++) {
+			if (item.trailer.youtube[i].size == 'HD') {
+				best = item.trailer.youtube[i];
+			}
+		};
+
+		item.trailer.best = best;
+	}
+
+
 	item.backgrounds = backgrounds;
+	if (sources > 0)
+		item.avg_score = Math.round(score/sources);
 
 	callback(null, item)
 }

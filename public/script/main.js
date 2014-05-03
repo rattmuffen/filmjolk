@@ -50,6 +50,8 @@ function Filmjolk($scope, $http) {
 		{name: 'TV4 Film',	id:'297'}
 	];
 
+	$scope.displayAired = true;
+
 	// On startup...
 	angular.element(document).ready(function () {
 		// Get channels from localStorage.
@@ -108,17 +110,17 @@ function Filmjolk($scope, $http) {
 	}
 
 	$scope.getMovies = function() {
-		// Toggle UI elements while fetching movies and slide to start.
-		$('#movie-carousel').carousel(0);
-		$("#leftControl").hide();
-		$("#rightControl").hide();
-		$('#loading-bar').css('width','0%').attr('aria-valuenow', '0');
-		$("#loadProgress").fadeIn();
-
 		// Reset arrays and counters.
 		$scope.recMovies = 0;
 		$scope.movies = [];
 		$scope.recIndex = -1;
+
+		// Toggle UI elements while fetching movies and slide to start.
+		$('#movie-carousel').carousel(0);
+		$('#leftControl').hide();
+		$('#rightControl').hide();
+		$('#loading-bar').css('width','0%').attr('aria-valuenow', '0');
+		$('#loadProgress').fadeIn();
 
 		// Array containing channels that movies have been fetched for.
 		completedChannels = [];
@@ -169,12 +171,10 @@ function Filmjolk($scope, $http) {
 	$scope.setRecomendations = function() {
 		var m = $scope.movies.concat(); // Get copy.
 		m.sort(function(a,b) {
-			if (!a.imdb || !a.imdb.rating) return 1;
-			if (!b.imdb || !b.imdb.rating) return -1;
+			if (!a.avg_score) return 1;
+			if (!b.avg_score) return -1;
 
-			var m1 = parseFloat(a.imdb.rating);
-			var m2 = parseFloat(b.imdb.rating);
-			return ((m1 > m2) ? -1 : ((m1 < m2) ? 1 : 0));
+			return ((a.avg_score > b.avg_score) ? -1 : ((a.avg_score < b.avg_score) ? 1 : 0));
 		});
 
 		$scope.recMovies = m;
@@ -278,5 +278,29 @@ function Filmjolk($scope, $http) {
 		if (day < 10) {day = '0' + day; }
 
 		return y + '-' + m + '-' + day;
+	}
+
+	$scope.getStars = function (score, type) {
+		var rating = Math.round(score/10);
+		var full = [];
+		var half = [];
+		var empty = [];
+
+		if (rating%2==0) {
+			full[rating/2 - 1] = undefined;
+			empty[(5 - full.length) - 1] = undefined;
+		} else {
+			full[Math.floor(rating/2) - 1] = undefined;
+			empty[(5 - full.length) - 2] = undefined;
+			half = [''];
+		}
+
+		if (type=='full') {
+			return full;
+		} else if (type == 'empty') {
+			return empty;
+		} else if (type == 'half') {
+			return half;
+		}
 	}
 }

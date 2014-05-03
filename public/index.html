@@ -52,22 +52,26 @@
 					<ul class="nav navbar-nav navbar-right">
 						<button class="btn btn-success navbar-btn" ng-click="nextRec();"><i class="fa fa-magic fa-lg"></i><span class="menu-button-label"> Välj film åt mig!</span></button>
 						<button class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#channelModal"><i class="fa fa-plus fa-lg"></i><span class="menu-button-label"> Välj kanaler</span></button>
-						<button class="btn btn-warning navbar-btn" data-toggle="modal" data-target="#aboutModal"><i class="fa fa-question-circle fa-lg"></i></button>
+						<button class="btn btn-warning navbar-btn" data-toggle="modal" data-target="#aboutModal"><i class="fa fa-cog fa-lg"></i></button>
 					</ul>
 				</div>
 			</div>
 		</nav>
 
-		<!-- About modal -->
+		<!-- Settings modal -->
 		<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h2 class="modal-title" id="modalLabel">Om Filmjölk</h2>
+						<h2 class="modal-title" id="modalLabel">Inställningar</h2>
 					</div>
 					<div class="modal-body">
-						<p>Massa rolig info! Och roliga länkar!</p>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" ng-model="displayAired" ng-click="getMovies()"> Visa redan avslutade filmer
+							</label>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-check"></i> OK</button>
@@ -106,7 +110,7 @@
 			<!-- Slide indicators -->
 			<ol class="carousel-indicators center-block">
 				<li id="start-indicator" data-target="#movie-carousel" data-slide-to="0" class="active"></li>
-				<li data-target="#movie-carousel" ng-repeat="movie in movies" data-slide-to="{{$index + 1}}"></li>
+				<li data-target="#movie-carousel" ng-repeat="movie in movies" ng-if="(!displayAired && getMovieProgress(movie)<100) || displayAired" data-slide-to="{{$index + 1}}"></li>
 			</ol>
 
 			<!-- Slides -->
@@ -135,7 +139,7 @@
 				</div>
 
 				<!-- Movie slides -->
-				<div class="item" ng-repeat="movie in movies">
+				<div ng-repeat="movie in movies" class="item" ng-if="(!displayAired && getMovieProgress(movie)<100) || displayAired">
 					<div id="{{$index}}-bg" class="bg-image" ng-if="movie.backgrounds.length == 0" style="background: url(http://lorempixel.com/1920/1080/cats/) no-repeat center center fixed;"></div>
 					<div id="{{$index}}-bgContainer" ng-if="movie.backgrounds.length > 0">
 						<div ng-repeat="bg in movie.backgrounds" class="{{$parent.$index}}-bg-image bg-image" style="background-image:url({{bg.url}})"></div>
@@ -151,7 +155,7 @@
 						</div>
 
 						<!-- Movie info -->
-						<div class="panel-body">
+						<div class="panel-body movie-info-body">
 							<div class="info-inner" class="col-sm-12 col-md-4">
 								<div class="poster" class="pull-right">
 									<img ng-if="movie.fanart.moviedisc" class="disc-image spin" ng-src="{{movie.fanart.moviedisc[0].url}}/preview">
@@ -160,13 +164,20 @@
 
 								<div class="movie-info pull-right">
 									<div class="pull-right text-right">
-										<h2 ng-if="movie.imdb.rating">{{movie.imdb.rating}}/10</h2>
+										<img ng-if="movie.fanart.movielogo[0].url" ng-src="{{movie.fanart.movielogo[0].url}}/preview">
+										<div ng-if="movie.avg_score" id="score" title="{{movie.avg_score}}/100">
+											<h3>
+												<i ng-repeat="full_star in getStars(movie.avg_score,'full') track by $index" class="fa fa-star fa-lg fa-fw"></i>
+												<i ng-repeat="half_star in getStars(movie.avg_score,'half') track by $index" class="fa fa-star-half-o fa-lg fa-fw"></i>
+												<i ng-repeat="empty_star in getStars(movie.avg_score,'empty') track by $index" class="fa fa-star-o fa-lg fa-fw"></i>
+											</h3>
+										</div>
 										<h4>{{getTimeString(movie.programme.start);}} - {{getTimeString(movie.programme.stop);}} på {{movie.channel.name}}</h4>
 									</div>
 									<h2>{{movie.series.name}}</h2>
 									<p>{{movie.programme.description}}</p>
 									<p>
-										<button ng-if="movie.trailer.youtube" class="btn btn-xs btn-default" data-toggle="modal" ng-click="loadTrailer($index);" data-target="#{{$index}}-trailer-modal"><i class="fa fa-youtube-play"></i> Trailer</button>
+										<button ng-if="movie.trailer.best" class="btn btn-xs btn-default" data-toggle="modal" ng-click="loadTrailer($index);" data-target="#{{$index}}-trailer-modal"><i class="fa fa-youtube-play"></i> Trailer</button>
 										<a ng-if="movie.fanart.imdb_id" class="btn btn-xs btn-default" target="_blank" href="http://www.imdb.com/title/{{movie.fanart.imdb_id}}"><i class="fa fa-film"></i> IMDb</a>
 										<a ng-if="movie.tmdb" class="btn btn-xs btn-default" target="_blank" href="http://www.themoviedb.org/movie/{{movie.tmdb.id}}">tMDB</a>
 										<a ng-if="movie.rt" class="btn btn-xs btn-default" target="_blank" href="{{movie.rt.links.alternate}}" title="Betyg på RottenTomatoes: {{movie.rt.ratings.critics_rating}}">
@@ -180,20 +191,17 @@
 										<button class="btn btn-sm btn-success" data-toggle="modal" data-target="#{{$index}}-modal"><i class="fa fa-thumbs-up"></i> Aa fan!</button>
 										<button class="btn btn-sm btn-danger" ng-click="nextRec();"><i class="fa fa-thumbs-down"></i> Nä fy!</button
 									</p>
-									<div class="pull-right">
-										<img ng-if="movie.fanart.movielogo[0].url" ng-src="{{movie.fanart.movielogo[0].url}}/preview">
-									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 
 					<!-- Movie trailer modal -->
-					<div ng-if="movie.trailer.youtube" class="modal fade trailer-modal" id="{{$index}}-trailer-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+					<div ng-if="movie.trailer.best" class="modal fade trailer-modal" id="{{$index}}-trailer-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
 						<div class="modal-dialog center-block trailer-dialog">
 							<div class="modal-content" >
 								<div class="modal-body trailer-modal-body">
-									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.youtube[0].source}}" data-parameters="rel=0&enablejsapi=1"></div>
+									<div class="js-lazyYT" id="{{$index}}-trailer" data-youtube-id="{{movie.trailer.best.source}}" data-parameters="rel=0&enablejsapi=1"></div>
 								</div>
 							</div>
 						</div>

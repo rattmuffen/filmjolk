@@ -6,7 +6,7 @@ var app = express();
 var async = require('async');
 
 // Default port.
-var port = 12345;
+var port = 80;
 
 try {
 	var fanart_api_key = fs.readFileSync('keys/fanarttv', 'utf8');
@@ -35,11 +35,20 @@ if (process.argv.length >= 3) {
 	var p = parseInt(process.argv[2], 10);
 	if (!isNaN(p)) {
 		port = p;
+	} else {
+		console.log('\'' + process.argv[2] + '\' is not a valid port number. Using default port instead.');
 	}
 }
-app.listen(port);
-console.log('Filmjolk is listening on port ' + port + '.');
 
+app.listen(port, function () {
+	console.log('Filmjolk is listening on port ' + port + '.');
+}).on('error', function (err) {
+	if (err.code === 'EADDRINUSE') {
+		console.log('Port is busy; please choose another port.');
+	} else {
+		console.log('Error starting server: ' + err.message);
+	}
+});
 
 app.get('/movies/:channel/date/:date', function (req, res) {
 	// Waterfall flow: run functions in series, each passing their results to the next function.
@@ -275,7 +284,7 @@ function processMovie(item, callback) {
 			if (item.trailer.youtube[i].size == 'HD') {
 				best = item.trailer.youtube[i];
 			}
-		};
+		}
 
 		item.trailer.best = best;
 	}
@@ -286,5 +295,5 @@ function processMovie(item, callback) {
 		item.avg_score = Math.round(score/sources);
 	}
 
-	callback(null, item)
+	callback(null, item);
 }
